@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Octoller.PinBook.Web.Data;
 
 namespace Octoller.PinBook.Web
 {
@@ -19,6 +21,11 @@ namespace Octoller.PinBook.Web
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DatabaseAppContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("DevelopmentDb"));
+            });
+
             services.AddControllersWithViews();
 
             services.AddSpaStaticFiles(configuration =>
@@ -34,6 +41,7 @@ namespace Octoller.PinBook.Web
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
             app.UseRouting();

@@ -3,8 +3,8 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:62048",
-      "sslPort": 44393
+      "applicationUrl": "http://localhost:5001",
+      "sslPort": 44363
     }
   },
   "profiles": {
@@ -15,14 +15,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "Octoller.PinBook.Web": {
+    "Kestrel": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+        "dotnetRunMessages": "true",
+        "applicationUrl": "https://localhost:5001;http://localhost:5000",
       }
     }
   }
-}
