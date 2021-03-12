@@ -1,0 +1,51 @@
+﻿@model LoginViewModel;
+
+@{
+    Layout = "_AccountLayout";
+    ViewData["Title"] = "Вход";
+}
+
+<!-- Вкладки навигации -->
+<ul class="nav nav-tabs">
+    <li class="nav-item">
+        <a class="nav-link active" asp-action="Login" asp-controller="Account">Войти</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" asp-action="Register" asp-controller="Account">Создать аккаунт</a>
+    </li>
+</ul>
+<hr />
+
+<!-- Кнопки авторизации через сторонние сервисы -->
+@foreach (var provider in Model.Providers)
+{
+    <div class="mb-3 d-grid gap-1 mx-auto">
+        <a class="btn btn-outline-primary" asp-action="ExternalLogin"
+           asp-controller="Account" asp-route-returnUrl="@Model.ReturnUrl"
+           asp-route-providerName="@provider.Name">@provider.DisplayName</a>
+    </div>
+}
+<hr />
+
+<!-- Форма входа -->
+<form method="post" asp-action="Login" asp-controller="Account" asp-antiforgery="true">
+    <div class="validation" asp-validation-summary="ModelOnly"></div>
+    <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+    <div class="mb-3">
+        <label asp-for="Email" class="sr-only form-label">Email:</label>
+        <input placeholder="Email" class="form-control" type="email" asp-for="Email" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Password" class="sr-only form-label">Пароль:</label>
+        <input placeholder="Пароль" class="form-control" type="password" asp-for="Password" />
+    </div>
+    <div class="mb-3 form-check form-switch">
+        <input class="form-check-input" id="flexSwitchCheckDefault" type="checkbox" asp-for="IsPersistent" />
+        <label class="form-check-label" for="flexSwitchCheckDefault" asp-for="IsPersistent">Запомнить меня</label>
+    </div>
+    <hr />
+    <div class="mb-3 d-grid gap-2 mx-auto">
+        <input type="submit" value="Войти" class="btn btn-outline-primary" />
+        <a class="btn btn-outline-warning" asp-action="Index" asp-controller="Home">Отмена</a>
+    </div>
+</form>

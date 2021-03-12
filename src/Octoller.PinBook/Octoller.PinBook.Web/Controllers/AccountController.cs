@@ -14,11 +14,11 @@ namespace Octoller.PinBook.Web.Controllers
     {
         private UserManager<User> UserManager { get; }
         private SignInManager<User> SignInManager { get; }
-        private VkontacteApiService VkApiService { get; }
+        private VkontakteApiService VkApiService { get; }
 
         public AccountController(
             UserManager<User> userManager,
-            VkontacteApiService vkontacteApiService,
+            VkontakteApiService vkontacteApiService,
             SignInManager<User> signInManager)
         {
             UserManager = userManager;

@@ -28,6 +28,10 @@ namespace Octoller.PinBook.Web
                         builder.AddJsonFile(
                             path: $"appsettings.{context.HostingEnvironment.EnvironmentName}.json",
                             optional: true, reloadOnChange: true);
+
+                        builder.AddJsonFile(
+                            path: "privatesettings.json",
+                            optional: true, reloadOnChange: true);
                     });
 
                     webBuilder.UseKestrel();

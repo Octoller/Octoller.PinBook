@@ -12,13 +12,13 @@ using VkNet.Model;
 
 namespace Octoller.PinBook.Web.Kernel.Services
 {
-    public class VkontacteApiService
+    public class VkontakteApiService
     {
         private readonly IVkApi vkApi;
         private readonly AccountStore accountStore;
         private readonly UserManager<Data.Model.User> userManager;
 
-        public VkontacteApiService(
+        public VkontakteApiService(
             UserManager<Data.Model.User> manager,
             AccountStore store)
         {

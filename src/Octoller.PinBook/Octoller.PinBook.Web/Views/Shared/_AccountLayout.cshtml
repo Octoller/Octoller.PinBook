@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link rel="stylesheet" href="~/css/bootstrap.min.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/css/customlayoutstyle.css" asp-append-version="true" />
+    <title>@ViewBag.Title</title>
+    <style>
+        html, body {
+            height: 100%;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Контейнер для формы ввхода или регестрации -->>
+    <div class="container-fluid d-flex h-100 justify-content-center align-items-center p-0">
+        <div class="row bg-white shadow-sm">
+            <div class="col border rounded p-4">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="~/js/bootstrap.min.js"></script>
+
+</body>
+</html>
