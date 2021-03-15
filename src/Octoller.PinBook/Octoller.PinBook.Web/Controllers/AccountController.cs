@@ -56,7 +56,7 @@ namespace Octoller.PinBook.Web.Controllers
             {
                 var user = await UserManager.FindByNameAsync(loginModel.Email);
 
-                if (user is null)
+                if (user is not null)
                 {
                     var signInResult = await SignInManager.PasswordSignInAsync(
                        user: user, 
@@ -78,6 +78,8 @@ namespace Octoller.PinBook.Web.Controllers
             ModelState.AddModelError(string.Empty, "Неверно указан пароль или логин");
 
             loginModel.Password = string.Empty;
+
+            loginModel.Providers = await SignInManager.GetExternalAuthenticationSchemesAsync();
 
             return View(loginModel);
         }
@@ -190,19 +192,19 @@ namespace Octoller.PinBook.Web.Controllers
 
                 if (createAccountResult.Succeeded)
                 {
-                    var addRoleResult = await UserManager.AddToRoleAsync(user, AppData.RolesData.UserRoleName);
-
-                    if (addRoleResult.Succeeded)
+                    if (!await UserManager.IsInRoleAsync(user, AppData.RolesData.UserRoleName))
                     {
-                        var addLoginInfoResult = await UserManager.AddLoginAsync(user, loginInfo);
+                        _ = await UserManager.AddToRoleAsync(user, AppData.RolesData.UserRoleName);
+                    }
 
-                        if (addLoginInfoResult.Succeeded)
-                        {
-                            await SignInManager.SignOutAsync();
-                            await SignInManager.SignInAsync(user, true);
+                    var addLoginInfoResult = await UserManager.AddLoginAsync(user, loginInfo);
 
-                            return Redirect(returnUrl);
-                        }
+                    if (addLoginInfoResult.Succeeded)
+                    {
+                        await SignInManager.SignOutAsync();
+                        await SignInManager.SignInAsync(user, true);
+
+                        return Redirect(returnUrl);
                     }
                 }
             }

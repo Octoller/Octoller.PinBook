@@ -30,8 +30,12 @@ namespace Octoller.PinBook.Web.Data
             using DatabaseAppContext context = scope.ServiceProvider.GetService<DatabaseAppContext>();
 
             //проверяем, создана ли база данных, если нет - создаем
-            var isExists = context.GetService<IDatabaseCreator>() is RelationalDatabaseCreator databaseCreator
-                && await databaseCreator.ExistsAsync();
+            var dbExist = (context.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator).Exists();
+
+            if (!dbExist)
+            {
+                (context.Database.GetService<IDatabaseCreator>() as RelationalDatabaseCreator).Create();
+            }
 
             var errorMessage = new StringBuilder();
 
