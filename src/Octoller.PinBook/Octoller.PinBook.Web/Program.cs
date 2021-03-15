@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace Octoller.PinBook.Web
@@ -10,7 +11,10 @@ namespace Octoller.PinBook.Web
         {
             var host = CreateHostBuilder(args).Build();
 
-            ///TODO: установка в БД начальных данных
+            using (IServiceScope scope = host.Services.CreateScope())
+            {
+                Data.DataInitilizer.InitializeAsync(scope.ServiceProvider).GetAwaiter().GetResult();
+            }
 
             host.Run();
         }
