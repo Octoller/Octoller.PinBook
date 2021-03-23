@@ -15,15 +15,18 @@ namespace Octoller.PinBook.Web.Controllers
         private UserManager<User> UserManager { get; }
         private SignInManager<User> SignInManager { get; }
         private ProfileManager ProfileManager { get; }
+        private AccountManager AccountManager { get; set; }
 
         public AccountController(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ProfileManager profileManager)
+            ProfileManager profileManager,
+            AccountManager accountManager)
         {
             UserManager = userManager;
             SignInManager = signInManager;
             ProfileManager = profileManager;
+            AccountManager = accountManager;
         }
 
 
@@ -114,25 +117,14 @@ namespace Octoller.PinBook.Web.Controllers
 
             if (ModelState.IsValid)
             {
-                var user = new User
-                {
-                    UserName = registerModel.Email,
-                    Email = registerModel.Email
-                };
-
-                var resultCreate = await UserManager.CreateAsync(user, registerModel.Password);
+                var resultCreate = await AccountManager.CreateAccount(
+                    email: registerModel.Email, password: registerModel.Password);
 
                 if (resultCreate.Succeeded)
                 {
-                    user = await UserManager.FindByEmailAsync(user.Email);
-
-                    if (!await UserManager.IsInRoleAsync(user, AppData.RolesData.UserRoleName))
-                    {
-                        _ = await UserManager.AddToRoleAsync(user, AppData.RolesData.UserRoleName);
-                    }
+                    var user = await UserManager.FindByEmailAsync(registerModel.Email);
 
                     await ProfileManager.CreateProfileAsync(user, new Profile());
-
                     await SignInManager.SignInAsync(user, true);
 
                     return Redirect(registerModel.ReturnUrl);
@@ -150,14 +142,12 @@ namespace Octoller.PinBook.Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult ExternalLogin(string returnUrl, string providerName)
-        {
-            returnUrl ??= Url.Action("Index", "Home");
-            var redirectUrl = Url.Action("ExternalLoginCallback", "Account", new { returnUrl });
-            var properties = SignInManager.ConfigureExternalAuthenticationProperties(providerName, redirectUrl);
+        public IActionResult ExternalLogin(string returnUrl, string providerName) =>
+            ExternalChallenge(returnUrl, nameof(ExternalLoginCallback), providerName);
 
-            return Challenge(properties, providerName);
-        }
+        [HttpGet]
+        public IActionResult ExternalRegister(string returnUrl, string providerName) =>
+            ExternalChallenge(returnUrl, nameof(ExternalRegisterCallback), providerName);
 
         [HttpGet]
         public async Task<IActionResult> ExternalLoginCallback(string returnUrl)
@@ -169,16 +159,30 @@ namespace Octoller.PinBook.Web.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var signInResult = await SignInManager.ExternalLoginSignInAsync(
-               loginProvider: loginInfo.LoginProvider, 
-               providerKey: loginInfo.ProviderKey, 
-               isPersistent: true, 
-               bypassTwoFactor: false);
-
-            if (signInResult.Succeeded)
+            if (await IsSuccessExternalSignIn(loginInfo))
             {
                 return Redirect(returnUrl);
             }
+            else
+            {
+                return RedirectToAction(nameof(ExternalRegisterCallback), "Account", returnUrl);
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalRegisterCallback(string returnUrl)
+        {
+            var loginInfo = await SignInManager.GetExternalLoginInfoAsync();
+
+            if (loginInfo is null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            if (await IsSuccessExternalSignIn(loginInfo))
+            {
+                return Redirect(returnUrl);
+            } 
             else
             {
                 var userEmail = loginInfo.Principal.Claims
@@ -186,34 +190,21 @@ namespace Octoller.PinBook.Web.Controllers
                     .FirstOrDefault()
                     .Value;
 
-                var user = await UserManager.FindByEmailAsync(userEmail);
-
-                if (user is null)
+                var createAccount = await AccountManager.CreateAccount(userEmail);
+                if (createAccount.Succeeded)
                 {
-                    _ = await UserManager.CreateAsync(new User
+                    var user = await UserManager.FindByEmailAsync(userEmail);
+
+                    await ProfileManager.CreateProfileAsync(user);
+
+                    var addLoginInfoResult = await UserManager.AddLoginAsync(user, loginInfo);
+                    if (addLoginInfoResult.Succeeded)
                     {
-                        Email = userEmail,
-                        UserName = userEmail
-                    });
+                        await SignInManager.SignOutAsync();
+                        await SignInManager.SignInAsync(user, true);
 
-                    user = await UserManager.FindByEmailAsync(userEmail);
-                }
-
-                var createProfileResult = await ProfileManager.CreateProfileAsync(user, new Profile());
-
-                if (!await UserManager.IsInRoleAsync(user, AppData.RolesData.UserRoleName))
-                {
-                    _ = await UserManager.AddToRoleAsync(user, AppData.RolesData.UserRoleName);
-                }
-
-                var addLoginInfoResult = await UserManager.AddLoginAsync(user, loginInfo);
-
-                if (addLoginInfoResult.Succeeded)
-                {
-                    await SignInManager.SignOutAsync();
-                    await SignInManager.SignInAsync(user, true);
-
-                    return Redirect(returnUrl);
+                        return Redirect(returnUrl);
+                    }
                 }
             }
 
@@ -228,6 +219,28 @@ namespace Octoller.PinBook.Web.Controllers
         {
             await SignInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+        private async Task<bool> IsSuccessExternalSignIn(ExternalLoginInfo loginInfo)
+        {
+            var result = await SignInManager.ExternalLoginSignInAsync(
+               loginProvider: loginInfo.LoginProvider,
+               providerKey: loginInfo.ProviderKey,
+               isPersistent: true,
+               bypassTwoFactor: false);
+
+            return result.Succeeded;
+        }
+
+
+
+        private IActionResult ExternalChallenge(string returnUrl, string methodName, string providerName)
+        {
+            returnUrl ??= Url.Action("Index", "Home");
+            var redirectUrl = Url.Action(methodName, "Account", new { returnUrl });
+            var properties = SignInManager.ConfigureExternalAuthenticationProperties(providerName, redirectUrl);
+
+            return Challenge(properties, providerName);
         }
     }
 }
