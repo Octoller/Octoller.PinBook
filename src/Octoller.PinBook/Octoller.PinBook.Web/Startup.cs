@@ -63,6 +63,7 @@ namespace Octoller.PinBook.Web
             });
 
             services.AddScoped<ProfileStore>();
+            services.AddScoped<AccountManager>();
             services.AddScoped<ProfileManager>();
 
             services.AddControllersWithViews();

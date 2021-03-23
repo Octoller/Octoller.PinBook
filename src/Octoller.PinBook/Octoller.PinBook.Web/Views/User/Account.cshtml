@@ -7,18 +7,45 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-3 pt-5"></div>
+        <div class="col-2 pt-5"></div>
         <div class="col-1 pt-5">
             <h5 class="text-center">@Model.Name</h5>
+            <hr />
             <nav class="nav flex-column nav-pills">
                 <a class="nav-link" asp-action="Profile" asp-controller="User">Профиль</a>
                 <a class="nav-link" href="#">Списки</a>
                 <a class="nav-link active" aria-current="page" href="#">Аккаунт</a>
             </nav>
         </div>
+        <div class="col-1 pt-5">
+        </div>
         <div class="col-5 pt-5">
             <h5 class="text-center">Настройки</h5>
+            <hr />
+            <form method="post" asp-action="Account" asp-controller="User" asp-antiforgery="true">
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                <input type="hidden" name="name" value="@Model.Name" />
+                <div class="mb-3">
+                    <label asp-for="Email" class="sr-only">Введите Email:</label>
+                    <input placeholder="Email" class="form-control" type="email" asp-for="Email" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Password" class="sr-only">Новый пароль:</label>
+                    <input placeholder="Новый пароль" class="form-control" type="password" asp-for="Password" />
+                    <span asp-validation-for="Password"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="CurrentPassword" class="sr-only">Введите старый пароль:</label>
+                    <input placeholder="Старый пароль" class="form-control" type="password" asp-for="CurrentPassword" />
+                    <span asp-validation-for="CurrentPassword"></span>
+                </div>
+                <hr />
+                <div class="mb-3 d-grid gap-2 mx-auto">
+                    <input type="submit" value="Сохранить" class="btn btn-outline-primary" />
+                </div>
+            </form>
         </div>
-        <div class="col-3 pt-5"></div>
+        <div class="col-2 pt-5"></div>
     </div>
 </div>

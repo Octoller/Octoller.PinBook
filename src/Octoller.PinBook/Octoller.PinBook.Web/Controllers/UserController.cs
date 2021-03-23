@@ -56,7 +56,7 @@ namespace Octoller.PinBook.Web.Controllers
         [HttpPost]
         [Authorize(Policy = "Users")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile(ProfileViewModel profileModel)
+        public async Task<IActionResult> Profile(ProfileViewModel profileModel)
         {
             if (profileModel is not null)
             {
@@ -64,22 +64,32 @@ namespace Octoller.PinBook.Web.Controllers
 
                 if (user is not null)
                 {
-                    var profile = await ProfileManager.FindProfileByUserAsync(user);
-                    if (profile is not null)
+                    var profile = new Profile
                     {
-                        return View(new ProfileViewModel
+                        Name = profileModel.Name,
+                        Site = profileModel.Site,
+                        Location = profileModel.Location,
+                        About = profileModel.About
+                    };
+
+                    var updateResult = await ProfileManager.UpdateProfileAsync(user, profile);
+                    if (updateResult.Succeeded)
+                    {
+                        return View(profileModel);
+                    }
+                    else
+                    {
+                        foreach(var e in updateResult.Errors)
                         {
-                            Name = profile.Name,
-                            About = profile.About,
-                            Location = profile.Location,
-                            Site = profile.Site,
-                            Avatar = profile.Avatar ?? null
-                        });
+                            ModelState.AddModelError("", e.Description);
+                        }
+
+                        return View(profile);
                     }
                 }
             }
 
-            return View(new ProfileViewModel());
+            return View(profileModel);
         }
 
         [HttpGet]
@@ -109,30 +119,43 @@ namespace Octoller.PinBook.Web.Controllers
         [HttpPost]
         [Authorize(Policy = "Users")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateAccount(AccountViewModel accountModel)
+        public async Task<IActionResult> Account(AccountViewModel accountModel)
         {
             if (ModelState.IsValid)
             {
                 var user = await UserManager.FindByNameAsync(User.Identity.Name);
                 if (user is not null)
                 {
-                    var updateResult = await AccountManager.UpdateAccount(user.Id, accountModel.Email, accountModel.Password);
-                    if (updateResult.Succeeded)
+                    var profile = await ProfileManager.FindProfileByUserAsync(user);
+                    if (profile is not null)
                     {
                         var vk = await IsExternalAuthSchem("VKontakte");
 
-                        return View(new AccountViewModel
+                        var updateResult = await AccountManager.UpdateAccount(user.Id, accountModel.Email, accountModel.Password);
+                        if (updateResult.Succeeded)
                         {
-                            Name = user.UserName,
-                            Email = user.Email,
-                            VkAccount = vk
-                        });
-                    } 
-                    else
-                    {
-                        foreach(var e in updateResult.Errors)
+                            var newUser = await UserManager.FindByNameAsync(User.Identity.Name);
+
+                            return View(new AccountViewModel
+                            {
+                                Name = profile.Name,
+                                Email = newUser.Email,
+                                VkAccount = vk
+                            });
+                        } 
+                        else
                         {
-                            ModelState.AddModelError("", e.Description);
+                            foreach (var e in updateResult.Errors)
+                            {
+                                ModelState.AddModelError("", e.Description);
+                            }
+
+                            return View(new AccountViewModel
+                            {
+                                Name = profile.Name,
+                                Email = user.Email,
+                                VkAccount = vk
+                            });
                         }
                     }
                 } 
@@ -142,7 +165,7 @@ namespace Octoller.PinBook.Web.Controllers
                 }
             }
 
-            return View(new AccountViewModel());
+            return View(accountModel);
         }
 
         private async Task<bool> IsExternalAuthSchem(string schemeName) =>

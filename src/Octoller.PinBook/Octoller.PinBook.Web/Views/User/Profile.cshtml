@@ -7,18 +7,45 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-3 pt-5"></div>
+        <div class="col-2 pt-5"></div>
         <div class="col-1 pt-5">
             <h5 class="text-center">@Model.Name</h5>
+            <hr />
             <nav class="nav flex-column nav-pills">
                 <a class="nav-link active" aria-current="page" href="#">Профиль</a>
                 <a class="nav-link" href="#">Списки</a>
                 <a class="nav-link" asp-action="Account" asp-controller="User">Аккаунт</a>
             </nav>
         </div>
+        <div class="col-1 pt-5">
+        </div>
         <div class="col-5 pt-5">
             <h5 class="text-center">Настройки</h5>
+            <hr />
+            <form method="post" asp-action="Profile" asp-controller="User" asp-antiforgery="true">
+                <div class="validation" asp-validation-summary="ModelOnly"></div>
+                <div class="mb-3">
+                    <label asp-for="Name" class="sr-only form-label">Имя:</label>
+                    <input placeholder="Имя" class="form-control" type="text" asp-for="Name" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Site" class="sr-only form-label">Веб-сайт:</label>
+                    <input placeholder="Веб-сайт" class="form-control" type="text" asp-for="Site" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Location" class="sr-only form-label">Местоположение:</label>
+                    <input placeholder="Местоположение" class="form-control" type="text" asp-for="Location" />
+                </div>
+                <div class="mb-3">
+                    <label asp-for="About" class="sr-only form-label">О себе:</label>
+                    <textarea rows="3" maxlength="1000" placeholder="О себе" class="form-control" asp-for="About"></textarea>
+                </div>
+                <hr />
+                <div class="mb-3 d-grid gap-2 mx-auto">
+                    <input type="submit" value="Сохранить" class="btn btn-outline-primary" />
+                </div>
+            </form>
         </div>
-        <div class="col-3 pt-5"></div>
+        <div class="col-2 pt-5"></div>
     </div>
 </div>
