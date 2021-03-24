@@ -44,8 +44,7 @@ namespace Octoller.PinBook.Web.Controllers
                         Name = profile.Name,
                         About = profile.About,
                         Location = profile.Location,
-                        Site = profile.Site,
-                        Avatar = profile.Avatar ?? null
+                        Site = profile.Site
                     });
                 }
             }
@@ -170,6 +169,6 @@ namespace Octoller.PinBook.Web.Controllers
 
         private async Task<bool> IsExternalAuthSchem(string schemeName) =>
             (await SignInManager.GetExternalAuthenticationSchemesAsync())
-                        .Any(s => s.Name == "schemeName");
+                        .Any(s => s.Name == schemeName);
     }
 }

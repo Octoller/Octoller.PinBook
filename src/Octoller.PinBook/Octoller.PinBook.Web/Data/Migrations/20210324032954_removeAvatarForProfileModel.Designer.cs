@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Octoller.PinBook.Web.Data;
 
 namespace Octoller.PinBook.Web.Data.Migrations
 {
     [DbContext(typeof(PinBookDb))]
-    partial class DatabaseAppContextModelSnapshot : ModelSnapshot
+    [Migration("20210324032954_removeAvatarForProfileModel")]
+    partial class removeAvatarForProfileModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -57,11 +57,6 @@ namespace Octoller.PinBook.Web.Data.Model
         public string About { get; set; }
 
         /// <summary>
-        /// Аватар пользователя 
-        /// </summary>
-        public byte[] Avatar { get; set; }
-
-        /// <summary>
         /// Списки
         /// </summary>
         public IEnumerable<BookList> BookLists { get; set; }

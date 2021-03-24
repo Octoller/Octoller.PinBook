@@ -21,10 +21,5 @@
         /// Дополнительная информация о пользователе
         /// </summary>
         public string About { get; set; }
-
-        /// <summary>
-        /// Аватар пользователя 
-        /// </summary>
-        public byte[] Avatar { get; set; }
     }
 }

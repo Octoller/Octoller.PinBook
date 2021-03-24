@@ -95,7 +95,6 @@ namespace Octoller.PinBook.Web.Kernel.Services
                     currentProfile.About = modifiedProfile.About;
                     currentProfile.Location = modifiedProfile.Location;
                     currentProfile.Site = modifiedProfile.Site;
-                    currentProfile.Avatar = modifiedProfile.Avatar;
 
                     var updateResult = await ProfileStore.UpdateAsync(currentProfile);
 

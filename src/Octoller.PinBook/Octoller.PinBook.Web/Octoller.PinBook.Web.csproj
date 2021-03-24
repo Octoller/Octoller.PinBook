@@ -18,4 +18,8 @@
     <PackageReference Include="VkNet" Version="1.60.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Files\UserAvatar\" />
+  </ItemGroup>
+
 </Project>
