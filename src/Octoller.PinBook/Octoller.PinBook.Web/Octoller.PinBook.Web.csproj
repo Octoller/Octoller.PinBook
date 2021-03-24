@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Files\UserAvatar\" />
+    <Folder Include="wwwroot\Files\BookСovers\" />
   </ItemGroup>
 
 </Project>

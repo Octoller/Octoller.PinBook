@@ -57,7 +57,7 @@ namespace Octoller.PinBook.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Profile(ProfileViewModel profileModel)
         {
-            if (profileModel is not null)
+            if (ModelState.IsValid)
             {
                 var user = await UserManager.FindByNameAsync(User.Identity.Name);
 
@@ -125,37 +125,43 @@ namespace Octoller.PinBook.Web.Controllers
                 var user = await UserManager.FindByNameAsync(User.Identity.Name);
                 if (user is not null)
                 {
-                    var profile = await ProfileManager.FindProfileByUserAsync(user);
-                    if (profile is not null)
+                    if (await UserManager.CheckPasswordAsync(user, accountModel.CurrentPassword))
                     {
-                        var vk = await IsExternalAuthSchem("VKontakte");
-
-                        var updateResult = await AccountManager.UpdateAccount(user.Id, accountModel.Email, accountModel.Password);
-                        if (updateResult.Succeeded)
+                        var profile = await ProfileManager.FindProfileByUserAsync(user);
+                        if (profile is not null)
                         {
-                            var newUser = await UserManager.FindByNameAsync(User.Identity.Name);
+                            var vk = await IsExternalAuthSchem("VKontakte");
 
-                            return View(new AccountViewModel
+                            var updateResult = await AccountManager.UpdateAccount(user.Id, accountModel.Email, accountModel.Password);
+                            if (updateResult.Succeeded)
                             {
-                                Name = profile.Name,
-                                Email = newUser.Email,
-                                VkAccount = vk
-                            });
-                        } 
-                        else
-                        {
-                            foreach (var e in updateResult.Errors)
+                                var newUser = await UserManager.FindByNameAsync(User.Identity.Name);
+
+                                return View(new AccountViewModel
+                                {
+                                    Name = profile.Name,
+                                    Email = newUser.Email,
+                                    VkAccount = vk
+                                });
+                            } else
                             {
-                                ModelState.AddModelError("", e.Description);
+                                foreach (var e in updateResult.Errors)
+                                {
+                                    ModelState.AddModelError("", e.Description);
+                                }
+
+                                return View(new AccountViewModel
+                                {
+                                    Name = profile.Name,
+                                    Email = user.Email,
+                                    VkAccount = vk
+                                });
                             }
-
-                            return View(new AccountViewModel
-                            {
-                                Name = profile.Name,
-                                Email = user.Email,
-                                VkAccount = vk
-                            });
                         }
+                    } 
+                    else
+                    {
+                        ModelState.AddModelError("", "Неверно указан текущий пароль.");
                     }
                 } 
                 else
